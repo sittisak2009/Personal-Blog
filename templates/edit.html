@@ -5,14 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>แก้ไขโพสต์ • CyberSpace</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
 </head>
-<body class="bg-[#090a0f] text-slate-100 min-h-screen flex items-center justify-center p-6">
-    <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl w-full max-w-xl shadow-2xl">
+<body class="bg-[#090a0f] text-slate-100 min-h-screen flex items-center justify-center p-6 relative">
+    <div class="bg-slate-900/80 backdrop-blur-xl border border-slate-800/80 p-8 rounded-3xl w-full max-w-xl shadow-2xl relative z-10">
         <h2 class="text-2xl font-extrabold mb-6 text-center">✏️ แก้ไขโพสต์</h2>
+        
         <form action="/edit/{{ post.id }}" method="POST" enctype="multipart/form-data" class="space-y-4">
             <div>
                 <label class="block text-xs font-bold text-slate-400 mb-1">หัวข้อ</label>
-                <input type="text" name="title" value="{{ post.title }}" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-cyan-500">
+                <input type="text" name="title" value="{{ post.title }}" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-cyan-500 text-white">
             </div>
             <div>
                 <label class="block text-xs font-bold text-slate-400 mb-1">เปลี่ยนรูปหรือวิดีโอ (ถ้าต้องการ)</label>
@@ -20,7 +23,7 @@
             </div>
             <div>
                 <label class="block text-xs font-bold text-slate-400 mb-1">เนื้อหา</label>
-                <textarea name="content" rows="4" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-cyan-500">{{ post.content }}</textarea>
+                <textarea name="content" rows="4" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-cyan-500 text-white">{{ post.content }}</textarea>
             </div>
             <div class="flex justify-between items-center pt-2">
                 <a href="/" class="text-slate-400 text-sm hover:text-white">← กลับหน้าหลัก</a>
