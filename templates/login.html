@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login • CyberSpace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#090a0f] text-white min-h-screen flex items-center justify-center p-6">
+    <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl w-full max-w-sm shadow-2xl">
+        <h2 class="text-3xl font-extrabold text-center mb-8">เข้าสู่ระบบ</h2>
+        <form action="/login" method="POST" class="space-y-4">
+            <input type="text" name="username" placeholder="ชื่อผู้ใช้" required 
+                   class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition">
+            <input type="password" name="password" placeholder="รหัสผ่าน" required 
+                   class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition">
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-xl font-bold transition">เข้าสู่ระบบ</button>
+        </form>
+        <p class="text-center text-slate-400 text-sm mt-6">ยังไม่มีบัญชี? <a href="/register" class="text-cyan-400 font-bold">สมัครสมาชิก</a></p>
+    </div>
+</body>
+</html>
