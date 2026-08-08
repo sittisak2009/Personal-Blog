@@ -17,6 +17,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
+    posts = db.relationship('Post', backref='author', lazy=True)
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -28,31 +29,88 @@ class Post(db.Model):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# --- สร้างตาราง Database ทันทีที่แอปเริ่มทำงาน ---
+# สร้างตารางในฐานข้อมูลอัตโนมัติ
 with app.app_context():
     db.create_all()
 
 # --- ROUTES ---
 @app.route('/')
 def home():
-    # ป้องกัน Error ถ้าตารางว่างหรือยังดึงข้อมูลไม่ได้
     try:
         posts = Post.query.all()
     except Exception as e:
         posts = []
     return render_template('index.html', posts=posts)
 
+# หน้าสมัครสมาชิก
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user:
+            return "ชื่อผู้ใช้นี้ถูกใช้งานแล้ว กรุณาใช้ชื่ออื่น"
+            
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+        new_user = User(username=username, password=hashed_password)
+        db.session.add(new_user)
+        db.session.commit()
+        return redirect(url_for('login'))
+        
+    return render_template('register.html')
+
+# หน้าเข้าสู่ระบบ
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        user = User.query.filter_by(username=username).first()
+        if user and bcrypt.check_password_hash(user.password, password):
+            login_user(user)
+            return redirect(url_for('home'))
+        else:
+            return "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง"
+            
+    return render_template('login.html')
+
+# หน้าออกจากระบบ
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('home'))
+
+# หน้าเพิ่มโพสต์ใหม่ (เฉพาะคนที่ล็อกอินแล้วเท่านั้น)
+@app.route('/add', methods=['GET', 'POST'])
+@login_required
+def add_post():
+    if request.method == 'POST':
+        title = request.form.get('title')
+        content = request.form.get('content')
+        
+        if title and content:
+            new_post = Post(title=title, content=content, author=current_user)
+            db.session.add(new_post)
+            db.session.commit()
+            return redirect(url_for('home'))
+            
+    return render_template('add.html')
+
+# ระบบลบโพสต์ (เฉพาะเจ้าของโพสต์ถึงจะลบได้)
 @app.route('/delete/<int:post_id>', methods=['POST'])
 @login_required
 def delete_post(post_id):
     post = Post.query.get_or_404(post_id)
     if post.user_id != current_user.id:
-        flash("คุณไม่มีสิทธิ์ลบโพสต์ของคนอื่น!")
-        return redirect(url_for('home'))
+        return "คุณไม่มีสิทธิ์ลบโพสต์ของคนอื่น!"
     db.session.delete(post)
     db.session.commit()
     return redirect(url_for('home'))
 
 if __name__ == '__main__':
     app.run(debug=True)
-    
+        
