@@ -1,91 +1,48 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for
-from werkzeug.utils import secure_filename
+from flask import Flask, render_template, request, redirect, url_for, flash
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your_secret_key'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
+db = SQLAlchemy(app)
+bcrypt = Bcrypt(app)
+login_manager = LoginManager(app)
 
-UPLOAD_FOLDER = 'static/uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'mp4', 'webm', 'mov'}
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# --- MODELS ---
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(20), unique=True, nullable=False)
+    password = db.Column(db.String(60), nullable=False)
 
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+class Post(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
-# ข้อมูลจำลองเริ่มต้นที่มีทั้งภาพและวิดีโอ
-posts = [
-    {
-        "id": 1,
-        "title": "บรรยากาศยามเย็นริมทะเลสุดชิล",
-        "date": "8 สิงหาคม 2026",
-        "category": "ท่องเที่ยว",
-        "content": "บันทึกความทรงจำการเดินทาง ท้องฟ้าสวย ๆ และเสียงคลื่นที่ช่วยฮีลใจในวันหยุดยาว",
-        "media_url": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1000&auto=format&fit=crop",
-        "media_type": "image"
-    },
-    {
-        "id": 2,
-        "title": "คลิปไฮไลท์ทริปขับรถเล่นรับลม",
-        "date": "7 สิงหาคม 2026",
-        "category": "ไลฟ์สไตล์",
-        "content": "เก็บตกบรรยากาศวิวข้างทางระหว่างขับรถเดินทาง เพลงโปรดกับวิวสวย ๆ ฟินสุด ๆ",
-        "media_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-        "media_type": "video"
-    }
-]
-
+# --- ROUTES ---
 @app.route('/')
 def home():
+    posts = Post.query.all() # ดึงโพสต์ของทุกคนมาโชว์ (เหมือน Instagram Feed)
     return render_template('index.html', posts=posts)
 
-@app.route('/add', methods=['GET', 'POST'])
-def add_post():
-    if request.method == 'POST':
-        title = request.form.get('title')
-        category = request.form.get('category', 'ทั่วไป')
-        content = request.form.get('content')
-        date = "8 สิงหาคม 2026"
-        
-        media_url = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop"
-        media_type = "image"
-        
-        if 'media' in request.files:
-            file = request.files['media']
-            if file and file.filename != '' and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(file_path)
-                media_url = f"/{file_path}"
-                
-                # ตรวจสอบว่าเป็นวิดีโอหรือรูปภาพ
-                ext = filename.rsplit('.', 1)[1].lower()
-                if ext in {'mp4', 'webm', 'mov'}:
-                    media_type = "video"
-                else:
-                    media_type = "image"
-        
-        if title and content:
-            new_post = {
-                "id": len(posts) + 1 if not posts else posts[0]['id'] + 1,
-                "title": title,
-                "category": category,
-                "date": date,
-                "content": content,
-                "media_url": media_url,
-                "media_type": media_type
-            }
-            posts.insert(0, new_post)
-        return redirect(url_for('home'))
-        
-    return render_template('add.html')
-
 @app.route('/delete/<int:post_id>', methods=['POST'])
+@login_required
 def delete_post(post_id):
-    global posts
-    posts = [p for p in posts if p['id'] != post_id]
+    post = Post.query.get_or_404(post_id)
+    # ตรวจสอบว่าคนลบคือเจ้าของโพสต์เท่านั้น!
+    if post.user_id != current_user.id:
+        flash("คุณไม่มีสิทธิ์ลบโพสต์ของคนอื่น!")
+        return redirect(url_for('home'))
+    db.session.delete(post)
+    db.session.commit()
     return redirect(url_for('home'))
 
-if __name__ == '__main__':
-    app.run(debug=True)
-        
+# (ส่วน Register/Login จะต้องทำเพิ่มในไฟล์แยกครับ)
