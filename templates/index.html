@@ -3,17 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CyberSpace • Multimedia Blog & Gallery</title>
+    <title>CyberSpace • Feed</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
 </head>
 <body class="bg-[#090a0f] text-slate-100 min-h-screen selection:bg-cyan-500 selection:text-black">
     
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0 opacity-30">
+        <div class="absolute -top-40 -left-40 w-96 h-96 bg-indigo-600/30 rounded-full blur-[120px]"></div>
+        <div class="absolute top-1/2 -right-40 w-96 h-96 bg-cyan-600/30 rounded-full blur-[120px]"></div>
+    </div>
+
     <header class="sticky top-0 z-50 backdrop-blur-xl bg-[#090a0f]/80 border-b border-slate-800/60 shadow-2xl">
         <div class="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-400 flex items-center justify-center font-black text-black text-lg shadow-lg">CS</div>
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-400 flex items-center justify-center font-black text-black text-lg shadow-lg shadow-cyan-500/20">CS</div>
                 <div>
                     <h1 class="text-lg font-extrabold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">CyberSpace Diary</h1>
                     <p class="text-slate-400 text-xs">พื้นที่รวมภาพถ่าย วิดีโอ และเรื่องราวสุดพิเศษ</p>
@@ -29,7 +34,7 @@
                     <a href="/logout" class="text-xs font-bold text-red-400 hover:text-red-300 transition">ออกจากระบบ</a>
                 {% else %}
                     <a href="/login" class="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition">เข้าสู่ระบบ</a>
-                    <a href="/register" class="px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider bg-cyan-600 hover:bg-cyan-500 text-white transition shadow">สมัครสมาชิก</a>
+                    <a href="/register" class="px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider bg-cyan-600 hover:bg-cyan-500 text-black transition shadow">สมัครสมาชิก</a>
                 {% endif %}
             </div>
         </div>
@@ -37,16 +42,14 @@
 
     <main class="max-w-xl mx-auto px-4 py-10 relative z-10">
         {% if posts|length == 0 %}
-        <div class="text-center py-24 bg-slate-900/40 rounded-3xl border border-slate-800/80 backdrop-blur-md">
+        <div class="text-center py-24 bg-slate-900/40 rounded-3xl border border-slate-800/80 backdrop-blur-md shadow-2xl">
             <div class="text-4xl mb-3">📭</div>
             <p class="text-slate-400 font-medium">ยังไม่มีเรื่องราวในระบบ เริ่มสร้างความทรงจำแรกกันเลย!</p>
         </div>
         {% else %}
         <div class="grid gap-8">
             {% for post in posts %}
-            <article class="bg-slate-900/60 backdrop-blur-xl rounded-3xl overflow-hidden border border-slate-800/80 shadow-2xl transition duration-300 hover:border-slate-700 group">
-                
-                <!-- Post Owner Info & Actions -->
+            <article class="bg-slate-900/60 backdrop-blur-xl rounded-3xl overflow-hidden border border-slate-800/80 shadow-2xl transition duration-300 hover:border-slate-700">
                 <div class="px-6 py-4 flex items-center justify-between border-b border-slate-800/40">
                     <div class="flex items-center gap-2.5">
                         <div class="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center font-bold text-xs text-white">
@@ -55,7 +58,6 @@
                         <span class="text-sm font-bold text-slate-200">{{ post.author.username if post.author else 'ไม่ทราบผู้เขียน' }}</span>
                     </div>
 
-                    <!-- Edit & Delete Buttons (Owner Only) -->
                     {% if current_user.is_authenticated and post.user_id == current_user.id %}
                     <div class="flex items-center gap-2">
                         <a href="/edit/{{ post.id }}" class="text-slate-300 hover:text-cyan-400 text-xs font-semibold px-3 py-1 rounded-lg bg-slate-800/40 hover:bg-cyan-500/10 transition border border-slate-700/40">
@@ -70,7 +72,6 @@
                     {% endif %}
                 </div>
 
-                <!-- Media Section (Image or Video) -->
                 {% if post.media_url %}
                 <div class="relative w-full h-80 bg-black overflow-hidden">
                     {% if post.media_type == 'video' %}
@@ -84,7 +85,6 @@
                 </div>
                 {% endif %}
 
-                <!-- Content Details -->
                 <div class="p-6">
                     <h2 class="text-xl font-extrabold text-white mb-2 tracking-tight">{{ post.title }}</h2>
                     <p class="text-slate-300 leading-relaxed text-sm whitespace-pre-line font-light">{{ post.content }}</p>
@@ -98,6 +98,5 @@
     <footer class="text-center py-10 text-slate-600 text-xs border-t border-slate-900/80 mt-20 relative z-10">
         <p>CyberSpace Engine • Powered by Python Flask & Render</p>
     </footer>
-
 </body>
 </html>
