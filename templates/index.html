@@ -4,16 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Personal Blog & Gallery</title>
-    <!-- ใช้ Tailwind CSS เพื่อความสวยงามแบบรวดเร็ว -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-900 text-gray-100 font-sans min-h-screen">
     
     <!-- Header -->
     <header class="bg-gray-800 border-b border-gray-700 py-6 shadow-md">
-        <div class="container mx-auto px-4 text-center">
-            <h1 class="text-3xl font-bold tracking-wider">🌟 My Personal Blog</h1>
-            <p class="text-gray-400 mt-1">พื้นที่บันทึกเรื่องราว ไดอารี่ และแกลเลอรีภาพถ่าย</p>
+        <div class="container mx-auto px-4 flex justify-between items-center max-w-4xl">
+            <div>
+                <h1 class="text-2xl font-bold tracking-wider">🌟 My Personal Blog</h1>
+                <p class="text-gray-400 text-sm">พื้นที่บันทึกเรื่องราวและแกลเลอรี</p>
+            </div>
+            <a href="/add" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow">
+                + เขียนเรื่องราวใหม่
+            </a>
         </div>
     </header>
 
@@ -33,7 +37,6 @@
         </div>
     </main>
 
-    <!-- Footer -->
     <footer class="text-center py-6 text-gray-500 text-sm border-t border-gray-800 mt-12">
         <p>Built with Python Flask & Render</p>
     </footer>
